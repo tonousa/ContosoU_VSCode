@@ -7,42 +7,45 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ContosoUniversity.Data;
 using ContosoUniversity.Models;
+using ContosoUniversity.ViewModels;
 
-namespace ContosoUniversity.Pages_Students
+namespace ContosoUniversity.Pages.Students
 {
-    public class CreateModel : PageModel
+    public class CreateVMModel : PageModel
     {
         private readonly ContosoUniversity.Data.SchoolContext _context;
 
-        public CreateModel(ContosoUniversity.Data.SchoolContext context)
+        public CreateVMModel(ContosoUniversity.Data.SchoolContext context)
         {
             _context = context;
         }
 
         public IActionResult OnGet()
         {
+            StudentVM = new StudentVM {
+                EnrollmentDate = DateTime.Now,
+                FirstMidName = "Joe VM",
+                LastName = "Smith VM"
+            };
+
             return Page();
         }
 
         [BindProperty]
-        public Student Student { get; set; }
+        public StudentVM StudentVM { get; set; }
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-            var emptyStudent = new Student();
-            
-            if (await TryUpdateModelAsync<Student>(
-                emptyStudent,
-                "student", 
-                s => s.FirstMidName, s => s.LastName, s => s.EnrollmentDate))
+            if (!ModelState.IsValid)
             {
-                _context.Students.Add(emptyStudent);
-                await _context.SaveChangesAsync();
-                return RedirectToPage("./Index");
+                return Page();
             }
 
-            return Page();
+            var entry = _context.Add(new Student());
+            entry.CurrentValues.SetValues(StudentVM);
+            await _context.SaveChangesAsync();
+            return RedirectToPage("./Index");
         }
     }
 }
