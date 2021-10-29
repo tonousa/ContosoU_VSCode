@@ -36,7 +36,7 @@
         string selectedRow = "";
         if (item.ID == Model.InstructorID)
         {
-            selectedRow = "table-sucess";
+            selectedRow = "table-success";
         }
 
         <tr class="@selectedRow">
@@ -81,9 +81,55 @@
     <table class="table">
         <tr>
             <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
+            <th>Number</th>
+            <th>Title</th>
+            <th>Department</th>
         </tr>
+
+        @foreach (var item in Model.InstructorData.Courses)
+        {
+            string selectedRow = "";
+            if (item.CourseID == Model.CourseID)
+            {
+                selectedRow = "table-success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    <a asp-page="./Index" asp-route-courseID="@item.CourseID">Select</a>
+                </td>
+                <td>
+                    @item.CourseID
+                </td>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @item.Department.Name
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+@* Show Enrolled Students in Selected Courses *@
+@if (Model.InstructorData.Enrollments != null)
+{
+    <h3>Enrolled Students in Selected Courses</h3>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Grade</th>
+        </tr>
+        @foreach (var item in Model.InstructorData.Enrollments)
+        {
+            <tr>
+                <td>
+                    @item.Student.FullName
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Grade)
+                </td>
+            </tr>
+        }
     </table>
 }

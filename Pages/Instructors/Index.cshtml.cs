@@ -51,7 +51,11 @@ namespace ContosoUniversity.Pages.Instructors
                     .Where(x => x.CourseID == CourseID).Single();
                 await _context.Entry(selectedCourse)
                     .Collection(x => x.Enrollments).LoadAsync();
-                
+                foreach (Enrollment enrollment in selectedCourse.Enrollments)
+                {
+                    await _context.Entry(enrollment).Reference(x => x.Student).LoadAsync();
+                }
+                InstructorData.Enrollments = selectedCourse.Enrollments;
             }
         }
     }
