@@ -45,13 +45,24 @@ namespace ContosoUniversity.Pages.Instructors
                 return NotFound();
             }
 
-            Instructor = await _context.Instructors.FindAsync(id);
+            //eager load courses, so they're deleted, or configure cascade delete
+            Instructor instructor = await _context.Instructors
+            .Include(i => i.Courses)
+            .SingleAsync(i => i.ID == id);
 
-            if (Instructor != null)
+            if (instructor == null)
             {
-                _context.Instructors.Remove(Instructor);
-                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
+
+            // get departments of intructor and null them
+            var departments = await _context.Departments
+                        .Where(d => d.InstructorID == id)
+                        .ToListAsync();
+            departments.ForEach(d => d.InstructorID = null);
+
+            _context.Instructors.Remove(instructor);
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
